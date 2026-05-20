@@ -158,26 +158,47 @@ function FAQItem({ item, open, setOpen }) {
 
 function BookingForm() {
   const [form, setForm] = useState({ company: "", name: "", email: "", phone: "", date: "", time: "", notes: "" });
+  const [status, setStatus] = useState("idle"); // idle | sending | success | error
 
   const update = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const submitBooking = e => {
+  const submitBooking = async e => {
     e.preventDefault();
-    const subject = encodeURIComponent("KidyPay credit review booking request");
-    const body = encodeURIComponent(`New KidyPay booking request
-
-Company: ${form.company}
-Name: ${form.name}
-Email: ${form.email}
-Phone: ${form.phone}
-
-Preferred date: ${form.date}
-Preferred time: ${form.time}
-Notes: ${form.notes}
-
-Please follow up to confirm the appointment.`);
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+    setStatus("sending");
+    try {
+      const res = await fetch("https://formspree.io/f/xkoejrvz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          company: form.company,
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          preferred_date: form.date,
+          preferred_time: form.time,
+          notes: form.notes,
+          _subject: "KidyPay credit review booking request",
+        }),
+      });
+      if (res.ok) {
+        setStatus("success");
+        setForm({ company: "", name: "", email: "", phone: "", date: "", time: "", notes: "" });
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
   };
+
+  if (status === "success") return (
+    <div className="mt-5 rounded-2xl bg-green-50 border border-green-200 p-8 text-center">
+      <div className="text-4xl mb-3">✅</div>
+      <p className="text-xl font-black text-[#168A3A] mb-2">Request received!</p>
+      <p className="text-sm text-slate-600 leading-relaxed">Thank you — we'll be in touch shortly to confirm your credit review appointment.</p>
+      <button onClick={() => setStatus("idle")} className="mt-5 text-sm font-bold text-[#168A3A] hover:underline">Submit another request</button>
+    </div>
+  );
 
   return (
     <form onSubmit={submitBooking} className="mt-5 space-y-3 text-sm font-bold text-slate-700">
@@ -206,8 +227,13 @@ Please follow up to confirm the appointment.`);
         </select>
       </div>
       <textarea name="notes" value={form.notes} onChange={update} placeholder="Anything you want us to know?" className="h-24 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-[#168A3A]" />
-      <Button type="submit" className="w-full">Request Review</Button>
-      <p className="text-xs font-medium leading-5 text-slate-500">This will open an email to {CONTACT_EMAIL} with the booking details. A live online calendar can be connected later through Calendly, Google Calendar, or a website backend.</p>
+      <button type="submit" disabled={status === "sending"}
+        className="w-full rounded-2xl bg-[#168A3A] px-6 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#10722F] disabled:opacity-60">
+        {status === "sending" ? "Sending…" : "Request Review"}
+      </button>
+      {status === "error" && (
+        <p className="text-xs text-red-600 bg-red-50 rounded-xl px-4 py-2.5">Something went wrong — please try again or email us directly at {CONTACT_EMAIL}</p>
+      )}
     </form>
   );
 }
