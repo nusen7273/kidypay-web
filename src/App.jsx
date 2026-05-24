@@ -287,7 +287,7 @@ export default function App() {
 
         <section id="credits" className="px-5 py-16">
           <div className="mx-auto max-w-7xl">
-            <SectionTitle eyebrow="Two credits" title="State credit first. Federal credit behind it." text="The New York State credit is the key because it is refundable. The federal credit can add major value when the company has enough federal tax liability." />
+            <SectionTitle eyebrow="Two credits" title="State credit. Federal credit." text="The New York State credit is the key because it is refundable. The federal credit can add major value when the company has enough federal tax liability." />
             <div className="grid gap-6 lg:grid-cols-2">
               <CreditCard color="green" title="New York State Credit" percent="50%" subtitle="Refundable Credit" cap="$500,000" notes="Covers up to 50% of qualified child care facility expenditures. If the credit is more than your state tax due, the balance may come back as a refund." />
               <CreditCard color="navy" title="Federal Credit" percent="40–50%" subtitle="Dollar-for-Dollar Tax Credit" cap="$500,000–$600,000" notes="General businesses may qualify for 40%; eligible small businesses may qualify for 50%. This credit reduces federal tax liability and is generally nonrefundable." />
